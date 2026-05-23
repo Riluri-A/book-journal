@@ -1703,6 +1703,12 @@
             box-shadow: 0 8px 25px rgba(201, 151, 58, 0.3);
         }
 
+        .book-card.drag-activated {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(201, 151, 58, 0.4);
+            transform: scale(1.01);
+        }
+
     </style>
 
 <!-- HTML-->    
@@ -3218,47 +3224,67 @@
             });
          };
          
-         // ---- TOUCH DRAG AND DROP (iOS/Safari) ----
+         // ---- TOUCH DRAG AND DROP (iOS/Safari) ----       // EXPLANATION 19-new-version
          let touchDragCard = null;
          let touchClone = null;
-         let touchStartX = 0;
-         let touchStartY = 0;
+         let longPressTimer = null;
+         let isDragging = false;
 
          const addTouchDragSupport = (card) => {
             card.addEventListener("touchstart", (e) => {
-                touchDragCard = card;
-                const touch = e.touches[0];
-                touchStartX = touch.clientX;
-                touchStartY = touch.clientY;
+                isDragging = false;
 
-                // Create a visual clone
-                touchClone = card.cloneNode(true);
-                touchClone.style.position = "fixed";
-                touchClone.style.width = card.offsetWidth + "px";
-                touchClone.style.opacity = "0.8";
-                touchClone.style.pointerEvents = "none";
-                touchClone.style.zIndex = "9999";
-                touchClone.style.transform = "scale(1.02)";
-                touchClone.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
-                document.body.appendChild(touchClone);
+                // Start long press timer
+                longPressTimer = setTimeout(() => {
+                    isDragging = true;
+                    touchDragCard = card;
 
-                card.style.opacity = "0.4";
-            }, { passive: true });
+                    // Vibrate if supported (nice feedback on mobile!)
+                    if (navigator.vibrate) navigator.vibrate(50);
+
+                    // Visual feedback that drag is activated
+                    card.classList.add("drag-activated");
+
+                    // Create a visual clone
+                    const touch = e.touches[0];
+                    touchClone = card.cloneNode(true);
+                    touchClone.style.position = "fixed";
+                    touchClone.style.width = card.offsetWidth + "px";
+                    touchClone.style.opacity = "0.8";
+                    touchClone.style.pointerEvents = "none";
+                    touchClone.style.zIndex = "9999";
+                    touchClone.style.transform = "scale(1.02)";
+                    touchClone.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
+                    touchClone.style.left = (touch.clientX - card.offsetWidth / 2) + "px";
+                    touchClone.style.top = (touch.clientY - card.offsetHeight / 2) + "px";
+                    document.body.appendChild(touchClone);
+
+                    card.style.opacity = "0.4";
+                 }, 500);  // 500ms long press
+
+                }, { passive: true });
 
             card.addEventListener("touchmove", (e) => {
-                if (!touchDragCard) return;
+                if (!isDragging) {
+                    // Not dragging yet, cancel long press if finger moved too much
+                    clearTimeout(longPressTimer);
+                    return;
+                }
+
                 e.preventDefault();
 
                 const touch = e.touches[0];
 
                 // Move the clone
-                touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + "px";
-                touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + "px";
+                if (touchClone) {
+                    touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + "px";
+                    touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + "px";
+                }
 
                 // Find which card we're hovering over
-                touchClone.style.display = "none";
+                if (touchClone) touchClone.style.display = "none";
                 const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-                touchClone.style.display = "";
+                if (touchClone) touchClone.style.display = "";
 
                 const cardBelow = elementBelow?.closest(".book-card");
 
@@ -3270,7 +3296,14 @@
             }, { passive: false });
 
             card.addEventListener("touchend", (e) => {
-                if (!touchDragCard) return;
+                clearTimeout(longPressTimer);
+                card.classList.remove("drag-activated");
+
+                if (!isDragging) {
+                    // Normal tap — don't interfere
+                    isDragging = false;
+                    return;
+                }
 
                 const touch = e.changedTouches[0];
 
@@ -3280,7 +3313,9 @@
                     touchClone = null;
                 }
 
-                touchDragCard.style.opacity = "";
+                if (touchDragCard) {
+                    touchDragCard.style.opacity = "";
+                }
 
                 // Find drop target
                 const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -3304,9 +3339,27 @@
                     const newOrder = Array.from(tbrList.querySelectorAll(".book-card"))
                     .map(c => c.getAttribute("data-id"));
                     saveTbrOrder(newOrder);
+
+                    showAlert("📚 TBR order saved!");
                 }
 
                 touchDragCard = null;
+                isDragging = false;
+            });
+
+            card.addEventListener("touchcancel", () => {
+                clearTimeout(longPressTimer);
+                isDragging = false;
+                card.classList.remove("drag-activated");
+                if (touchClone) {
+                    touchClone.remove();
+                    touchClone = null;
+                }
+                if (touchDragCard) {
+                    touchDragCard.style.opacity = "";
+                    touchDragCard = null;
+                }
+                document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
             });
          };
 
