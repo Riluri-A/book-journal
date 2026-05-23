@@ -2467,6 +2467,7 @@
                         bookCard.addEventListener("dragover", handleDragOver);
                         bookCard.addEventListener("drop", handleDrop);
                         bookCard.addEventListener("dragend", handleDragEnd);
+                        addTouchDragSupport(bookCard);
                         tbrList.appendChild(bookCard);
                         countTbr++;
                     } else if (book.status === "dnf") {
@@ -3217,6 +3218,97 @@
             });
          };
          
+         // ---- TOUCH DRAG AND DROP (iOS/Safari) ----
+         let touchDragCard = null;
+         let touchClone = null;
+         let touchStartX = 0;
+         let touchStartY = 0;
+
+         const addTouchDragSupport = (card) => {
+            card.addEventListener("touchstart", (e) => {
+                touchDragCard = card;
+                const touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+
+                // Create a visual clone
+                touchClone = card.cloneNode(true);
+                touchClone.style.position = "fixed";
+                touchClone.style.width = card.offsetWidth + "px";
+                touchClone.style.opacity = "0.8";
+                touchClone.style.pointerEvents = "none";
+                touchClone.style.zIndex = "9999";
+                touchClone.style.transform = "scale(1.02)";
+                touchClone.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
+                document.body.appendChild(touchClone);
+
+                card.style.opacity = "0.4";
+            }, { passive: true });
+
+            card.addEventListener("touchmove", (e) => {
+                if (!touchDragCard) return;
+                e.preventDefault();
+
+                const touch = e.touches[0];
+
+                // Move the clone
+                touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + "px";
+                touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + "px";
+
+                // Find which card we're hovering over
+                touchClone.style.display = "none";
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                touchClone.style.display = "";
+
+                const cardBelow = elementBelow?.closest(".book-card");
+
+                document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
+
+                if (cardBelow && cardBelow !== touchDragCard) {
+                    cardBelow.classList.add("drag-over");
+                }
+            }, { passive: false });
+
+            card.addEventListener("touchend", (e) => {
+                if (!touchDragCard) return;
+
+                const touch = e.changedTouches[0];
+
+                // Remove clone
+                if (touchClone) {
+                    touchClone.remove();
+                    touchClone = null;
+                }
+
+                touchDragCard.style.opacity = "";
+
+                // Find drop target
+                const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+                const cardBelow = elementBelow?.closest(".book-card");
+
+                document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
+
+                if (cardBelow && cardBelow !== touchDragCard) {
+                    const tbrList = document.getElementById("tbr-list");
+                    const cards = Array.from(tbrList.querySelectorAll(".book-card"));
+                    const draggedIndex = cards.indexOf(touchDragCard);
+                    const targetIndex = cards.indexOf(cardBelow);
+
+                    if (draggedIndex < targetIndex) {
+                        tbrList.insertBefore(touchDragCard, cardBelow.nextSibling);
+                    } else {
+                        tbrList.insertBefore(touchDragCard, cardBelow);
+                    }
+
+                    // Save new order
+                    const newOrder = Array.from(tbrList.querySelectorAll(".book-card"))
+                    .map(c => c.getAttribute("data-id"));
+                    saveTbrOrder(newOrder);
+                }
+
+                touchDragCard = null;
+            });
+         };
 
         </script>
 
