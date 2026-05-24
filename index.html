@@ -236,7 +236,6 @@
         #tbr-list {
             user-select: none;
             -webkit-user-select: none;
-            touch-action: none;
         }
 
         .book-card {
@@ -3193,6 +3192,7 @@
          const handleDragOver = (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
+            startAutoScroll(e.clientY);
             const target = e.currentTarget;
             if (target !== draggedCard) {
                 target.classList.add("drag-over");
@@ -3224,10 +3224,43 @@
          };
 
          const handleDragEnd = (e) => {
+            stopAutoScroll();
             e.currentTarget.classList.remove("dragging");
             document.querySelectorAll(".book-card").forEach(card => {
                 card.classList.remove("drag-over");
             });
+         };
+
+         // ---- AUTO SCROLL WHILE DRAGGING ----              // EXPLANATION 20-new-version
+         let autoScrollInterval = null;
+         const SCROLL_ZONE = 100; // pixels from edge to trigger scroll
+         const SCROLL_SPEED = 8; // pixels per scroll step
+
+         const startAutoScroll = (clientY) => {
+            stopAutoScroll();
+
+            const windowHeight = window.innerHeight;
+
+            if (clientY < SCROLL_ZONE) {
+                // Near top — scroll up
+                const speed = Math.round(SCROLL_SPEED * (1 - clientY / SCROLL_ZONE));
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, -speed);
+                }, 16);
+            } else if (clientY > windowHeight - SCROLL_ZONE) {
+                // Near bottom — scroll down
+                const speed = Math.round(SCROLL_SPEED * ((clientY - (windowHeight - SCROLL_ZONE)) / SCROLL_ZONE));
+                autoScrollInterval = setInterval(() => {
+                    window.scrollBy(0, speed);
+                }, 16);
+            }
+         };
+
+         const stopAutoScroll = () => {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
          };
          
          // ---- TOUCH DRAG AND DROP (iOS/Safari) ----       // EXPLANATION 19-new-version
@@ -3237,7 +3270,6 @@
          let isDragging = false;
 
          const addTouchDragSupport = (card) => {
-            card.style.touchAction = "none";
             card.addEventListener("touchstart", (e) => {
                 isDragging = false;
 
@@ -3281,6 +3313,7 @@
                 e.preventDefault();
 
                 const touch = e.touches[0];
+                startAutoScroll(touch.clientY);
 
                 // Move the clone
                 if (touchClone) {
@@ -3304,6 +3337,7 @@
 
             card.addEventListener("touchend", (e) => {
                 clearTimeout(longPressTimer);
+                stopAutoScroll();
                 card.classList.remove("drag-activated");
 
                 if (!isDragging) {
@@ -3356,6 +3390,7 @@
 
             card.addEventListener("touchcancel", () => {
                 clearTimeout(longPressTimer);
+                stopAutoScroll();
                 isDragging = false;
                 card.classList.remove("drag-activated");
                 if (touchClone) {
