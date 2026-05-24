@@ -1714,6 +1714,302 @@
             transform: scale(1.01);
         }
 
+        /* ================================
+           MOBILE STYLES (phones)
+           ================================ */
+       @media (max-width: 480px) {
+
+        /* ---- BASE ---- */
+        body {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        /* ---- LOGIN PAGE ---- */
+        #login-section h1 {
+            font-size: 32px;
+        }
+
+        #login-section p {
+            font-size: 16px;
+        }
+
+        #login-section button {
+            font-size: 16px;
+            padding: 14px 35px;
+        }
+
+        /* ---- HEADER ---- */
+        #app-section {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+        }
+
+        #user-info {
+            font-size: 13px;
+        }
+
+        #app-section button {
+            font-size: 13px;
+            padding: 8px 12px;
+        }
+
+        /* ---- ADD BOOK BUTTON ---- */
+        #main-content > button {
+            font-size: 16px;
+            padding: 14px 30px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        /* ---- TABS ---- */
+        #tabs {
+            gap: 6px;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        #tabs button {
+            font-size: 13px;
+            padding: 10px 12px;
+            flex: 1;
+            text-align: center;
+        }
+
+        /* ---- SECTION TITLES ---- */
+        h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        /* ---- BOOK CARDS ---- */
+        #reading-list,
+        #read-list,
+        #tbr-list,
+        #dnf-list {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .book-card {
+            width: 100%;
+            padding: 15px;
+            gap: 12px;
+        }
+
+        .book-card-cover img {
+            width: 90px;
+            height: 135px;
+        }
+
+        .book-card-cover .generic-cover {
+            width: 90px;
+            height: 135px;
+            font-size: 35px;
+        }
+
+        .book-card-content h3 {
+            font-size: 17px;
+            margin-bottom: 4px;
+        }
+
+        .book-author {
+            font-size: 14px !important;
+            margin-bottom: 6px !important;
+        }
+
+        .book-meta {
+            font-size: 13px !important;
+            margin-bottom: 2px !important;
+        }
+
+        .book-review {
+            font-size: 13px !important;
+        }
+
+        /* ---- STARS ---- */
+        .star {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .star-partial {
+            width: 20px;
+            height: 20px;
+            font-size: 20px;
+        }
+
+        .rating-number {
+            font-size: 13px;
+        }
+
+        /* ---- BOOK ACTION BUTTONS ---- */
+        .book-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            gap: 10px;
+        }
+
+        .book-card .book-actions button {
+            padding: 10px !important;
+            font-size: 14px !important;
+            min-height: 44px;
+        }
+
+        /* ---- READ MORE BUTTON ---- */
+        .read-more-btn {
+            font-size: 13px !important;
+            padding: 6px 0 !important;
+            min-height: 44px;
+            display: block !important;
+        }
+
+        /* ---- SYNOPSIS ---- */
+        .book-synopsis {
+            font-size: 13px !important;
+            line-height: 1.6 !important;
+        }
+
+        /* ---- POPUP FORM ---- */
+        #add-book-form {
+            padding: 20px 15px;
+            max-height: 90vh;
+        }
+
+        #add-book-form h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .form-group label {
+            font-size: 12px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            font-size: 16px !important;
+            padding: 12px 15px;
+            min-height: 44px;
+        }
+
+        .form-group textarea {
+            height: 120px;
+        }
+
+        .form-actions button {
+            min-height: 48px;
+            font-size: 15px !important;
+        }
+
+        /* ---- RADIO AND CHECKBOX ---- */
+        .radio-group,
+        .checkbox-group {
+            gap: 12px;
+        }
+
+        .form-group .radio-label,
+        .form-group .checkbox-label {
+            font-size: 15px !important;
+            gap: 10px;
+        }
+
+        /* ---- CUSTOM ALERT ---- */
+        #custom-alert {
+            font-size: 14px;
+            padding: 15px 20px;
+            max-width: 90%;
+        }
+
+        /* ---- CONFIRM POPUP ---- */
+        #confirm-box {
+            padding: 25px 20px;
+        }
+
+        #confirm-message {
+            font-size: 15px;
+        }
+
+        .confirm-actions button {
+            min-height: 48px;
+            font-size: 14px !important;
+        }
+
+        /* ---- TEXT POPUP ---- */
+        #text-popup-box {
+            padding: 25px 15px;
+            max-height: 90vh;
+        }
+
+        #text-popup-title {
+            font-size: 16px;
+        }
+
+        #text-popup-content {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        /* ---- AI PANEL ---- */
+        #ai-panel {
+            width: 100%;
+        }
+
+        #ai-btn {
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+        }
+
+        /* ---- SETTINGS PANEL ---- */
+        #settings-panel {
+            width: 100%;
+        }
+
+        .settings-section-title {
+            font-size: 16px;
+        }
+
+        .stat-number {
+            font-size: 20px;
+        }
+
+        .stat-label {
+            font-size: 10px;
+        }
+
+        /* ---- YEAR FILTER ---- */
+        #year-filter-bar {
+            gap: 6px;
+        }
+
+        .year-btn {
+            font-size: 13px;
+            padding: 8px 14px;
+            min-height: 40px;
+        }
+
+        #year-stats-bar {
+            padding: 12px;
+            gap: 10px;
+        }
+
+        .year-stat-number {
+            font-size: 18px;
+        }
+
+        .year-stat-label {
+            font-size: 10px;
+        }
+       }
+
     </style>
 
 <!-- HTML-->    
