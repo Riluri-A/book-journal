@@ -236,6 +236,7 @@
         #tbr-list {
             user-select: none;
             -webkit-user-select: none;
+            touch-action: none;
         }
 
         .book-card {
@@ -3236,6 +3237,7 @@
          let isDragging = false;
 
          const addTouchDragSupport = (card) => {
+            card.style.touchAction = "none";
             card.addEventListener("touchstart", (e) => {
                 isDragging = false;
 
@@ -3367,93 +3369,7 @@
                 document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
             });
 
-            // ---- POINTER EVENTS (Apple Pencil support) ----
-            card.addEventListener("pointerdown", (e) => {
-                if (e.pointerType !== "pen") return;
-                isDragging = false;
-
-                longPressTimer = setTimeout(() => {
-                    isDragging = true;
-                    touchDragCard = card;
-                    card.classList.add("drag-activated");
-                    card.style.opacity = "0.4";
-
-                    touchClone = card.cloneNode(true);
-                    touchClone.style.position = "fixed";
-                    touchClone.style.width = card.offsetWidth + "px";
-                    touchClone.style.opacity = "0.8";
-                    touchClone.style.pointerEvents = "none";
-                    touchClone.style.zIndex = "9999";
-                    touchClone.style.transform = "scale(1.02)";
-                    touchClone.style.boxShadow = "0 10px 30px rgba(0,0,0,0.4)";
-                    touchClone.style.left = (e.clientX - card.offsetWidth / 2) + "px";
-                    touchClone.style.top = (e.clientY - card.offsetHeight / 2) + "px";
-                    document.body.appendChild(touchClone);
-                }, 500);
-            });
-
-            card.addEventListener("pointermove", (e) => {
-                if (e.pointerType !== "pen" || !isDragging) return;
-                e.preventDefault();
-
-                if (touchClone) {
-                    touchClone.style.left = (e.clientX - touchClone.offsetWidth / 2) + "px";
-                    touchClone.style.top = (e.clientY - touchClone.offsetHeight / 2) + "px";
-                }
-
-                if (touchClone) touchClone.style.display = "none";
-                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
-                if (touchClone) touchClone.style.display = "";
-
-                const cardBelow = elementBelow?.closest(".book-card");
-                document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
-                if (cardBelow && cardBelow !== touchDragCard) {
-                    cardBelow.classList.add("drag-over");
-                }
-            });
-
-            card.addEventListener("pointerup", (e) => {
-                if (e.pointerType !== "pen") return;
-                clearTimeout(longPressTimer);
-                card.classList.remove("drag-activated");
-
-                if (!isDragging) {
-                    isDragging = false;
-                    return;
-                }
-
-                if (touchClone) {
-                    touchClone.remove();
-                    touchClone = null;
-                }
-
-                if (touchDragCard) touchDragCard.style.opacity = "";
-
-                const elementBelow = document.elementFromPoint(e.clientX, e.clientY);
-                const cardBelow = elementBelow?.closest(".book-card");
-                document.querySelectorAll(".book-card").forEach(c => c.classList.remove("drag-over"));
-
-                if (cardBelow && cardBelow !== touchDragCard) {
-                    const tbrList = document.getElementById("tbr-list");
-                    const cards = Array.from(tbrList.querySelectorAll(".book-card"));
-                    const draggedIndex = cards.indexOf(touchDragCard);
-                    const targetIndex = cards.indexOf(cardBelow);
-
-                    if (draggedIndex < targetIndex) {
-                        tbrList.insertBefore(touchDragCard, cardBelow.nextSibling);
-                    } else {
-                        tbrList.insertBefore(touchDragCard, cardBelow);
-                    }
-
-                    const newOrder = Array.from(tbrList.querySelectorAll(".book-card"))
-                    .map(c => c.getAttribute("data-id"));
-                    saveTbrOrder(newOrder);
-                    showAlert("📚 TBR order saved!");
-                }
-
-                touchDragCard = null;
-                isDragging = false;
-            });
+            
          };
 
         </script>
